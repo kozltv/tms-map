@@ -12,22 +12,27 @@ new_file_path = '/Users/kseniya/Dropbox/project/Filter tms/New file.xlsx'
 parameter_type = str(input('Parameter: a) size b) CoG c)HotSpot d) EMD '))
 
 sheetn_in_original_table = 0
+column_parameter = 0
+column_stimulation = 0
 
 if parameter_type == 'a':
     sheetn_in_original_table = 0  # !!Check whether sheet is correct in the file
+    column_parameter = int(input('Input index of PARAMETER COLUMN in the original table (0-...): '))
+    column_stimulation = int(input('Input index of STIMULATION COLUMN in the original table (0-...): '))
 elif parameter_type == 'b':
    sheetn_in_original_table = 2  # !!Check whether sheet is correct in the file
+   column_parameter = 28  # default
+   column_stimulation = 31
 elif parameter_type == 'c' or 'd':
     question = input('What is path for file with data? ')
     if question != 'a':  # !!!Check whether it's ok for you
         table_path = question
     sheetn_in_original_table = int(input('Input SHEET INDEX in the original table (0-...): '))
-
+    column_parameter = int(input('Input index of PARAMETER COLUMN in the original table (0-...): '))
+    column_stimulation = int(input('Input index of STIMULATION COLUMN in the original table (0-...): '))
 
 row_start_data = int(input('Input index of the FIRST ROW of parameters and stimulation in the original table (0-...): '))
 row_finish_data = int(input('Input index of LAST ROW of parameters and stimulation in the original table (0-...): '))
-column_parameter = int(input('Input index of PARAMETER COLUMN in the original table (0-...): '))
-column_stimulation = int(input('Input index of STIMULATION COLUMN in the original table (0-...): '))
 
 # lists:
 deviation_list = []  # to save deviation
@@ -76,7 +81,7 @@ else:
 
 for row in range(row_start_data, row_finish_data + 1):
     if sheet.row_values(row)[column_parameter] != '':  # for case with empty cell
-        value1 = sheet.row_values(row)[column_parameter] # if row is empty
+        value1 = sheet.row_values(row)[column_parameter]  # if row is empty
         value2 = sheet.row_values(row)[column_stimulation]
         parameter_list.append(value1)
         stimulation_list.append(int(value2))
@@ -94,6 +99,7 @@ for k in range(len(parameter_list)):  # key = 0:24
 for deviation in deviation_list:
 
     dictionary_stim = dict(zip(key, stimulation_list))
+    dictionary_parameter = dict(zip(key, parameter_list))  # optional
 
     # searching of needed stimulations number
 
@@ -107,7 +113,10 @@ for deviation in deviation_list:
         if value > deviation:
             stim = index
 
-    answer.append(dictionary_stim[stim + 1])
+    if stim == len(parameter_list) - 1:  # 'NEVER case' when deviation value always more then threshold
+        answer.append('never')
+    else:
+        answer.append(dictionary_stim[stim + 1])
 
 # FINISH of main part
 
@@ -133,3 +142,4 @@ for stimulation in answer:
 wb.save(new_file_path)
 
 print(deviation_list, answer)
+
