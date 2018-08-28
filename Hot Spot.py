@@ -46,6 +46,9 @@ MEP = []
 first_row_mep = 6  # int(input('Type FIRST row where MEP data starts 1-...: ')) - 1
 last_row_mep = stimulations[-1] + first_row_mep - 1  # int(input('Type LAST row where MEP data finish 1-...:')) - 1
 
+
+# Calculation for DAY 1 CHANEL 1
+
 column_mep = 0
 if day == '1':
     if chanel == '1':
@@ -53,16 +56,22 @@ if day == '1':
     elif chanel == '2':
         column_mep = 26
     else:
-        column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel))
+        column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + ' Ch ' + chanel + ': '))
 else:
-    column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel))
+    column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + ' Ch ' + chanel + ': '))
 
 # extracting data and saving to MEP list
-for mep in range(first_row_mep, last_row_mep + 1):
-    value2 = sheet_raw.row_values(mep)[column_mep]  # if row is empty
-    if value2 == '' or value2 == '-':
-        value2 = 0
-    MEP.append(int(value2))
+
+
+def extracting_mep_data(first_row, last_row, save_list, sheet, column):
+    for mep in range(first_row, last_row + 1):
+        value2 = sheet.row_values(mep)[column]  # if row is empty
+        if value2 == '' or value2 == '-':
+            value2 = 0
+        save_list.append(int(value2))
+
+
+extracting_mep_data(first_row_mep, last_row_mep, MEP, sheet_raw, column_mep)
 
 key_for_mep = []
 for k in range(len(MEP)):
@@ -81,57 +90,35 @@ if stimulations[-1] != len(MEP_dict):
           'Check whether LAST ROW MEP data is determined and typed correct')
     quit()
 
+#  NEW Function fpr calculation of max
+def calculation_of_MAX(stimulations_list, dict_of_MEP, save_list):
+    temporal_list = []
+    for rows in stimulations_list:  # 11, 22..
+        for r in range(0, int(rows)):  # 0, 2... 10. Because key for the dict is 0-...
+            temporal_list.append(dict_of_MEP[r])  # temporal list with needed interval
+        mx = max(temporal_list)  # max in needed interval
+        save_list.append(mx)
+        del temporal_list[:]  # clean the list to rewrite it
+
 MAX_mep = []
-MEP_temporal = []
-for rows in stimulations:  # 11, 22..
-    for r in range(0, int(rows)):  # 0, 2... 10. Because key for the dict is 0-...
-        MEP_temporal.append(MEP_dict[r])  # temporal list with needed interval
-    mx = max(MEP_temporal)  # max in needed interval
-    MAX_mep.append(mx)
-    del MEP_temporal[:]  # clean the list to rewrite it
+calculation_of_MAX(stimulations, MEP_dict, MAX_mep)
+
 
 # MAIN PART. STEP 2 - getting coordinates of max
 
-"""
-_ordA = ord('A')
+# NEW Function to find row number of max
 
-def find_val_in_workbook(wb_path, val, sheetid):
-    wb = xlrd.open_workbook(wb_path)
-    for sheet in wb.sheets():
-        for rowidx in range(sheet.nrows):
-            row = sheet.row(rowidx)
-            for colidx, cell in enumerate(row):
-                if cell.ctype != 2:
-                    continue
-                if cell.value != val:
-                    continue
-                if colidx > 26:
-                    colchar = chr(int(_ordA + colidx / 26))
-                else:
-                    colchar = ''
-                colchar += chr(_ordA + colidx % 26)
-                print('{} -> {}{}: {}'.format(sheet.name, colchar, rowidx+1, cell.value))
-"""
+def search_rowind_of_max(list_of_max, orig_doc_with_data, column_ind, save_list):
+    for val in list_of_max:
+        for rowind, value in enumerate(orig_doc_with_data.col_values(column_ind)):
+            if value != val:
+                continue
+            else:
+                save_list.append(rowind + 1)
 
-"""
-def rowidx_for_value(wb_path, val, sheetid, columnidx):
-    wb = xlrd.open_workbook(wb_path)
-    sheet = wb.sheet_by_index(sheetid)
-    for rowind, value in enumerate(sheet.col_values(columnidx)):
-        if value != val:
-            continue
-        else:
-            return rowind
-"""  # was trying to create a function for determining of row. Only one Problem with return value
-
-# finding row number of max
 max_row = []
-for val in MAX_mep:
-    for rowind, value in enumerate(sheet_raw.col_values(column_mep)):
-        if value != val:
-            continue
-        else:
-            max_row.append(rowind + 1)
+search_rowind_of_max(MAX_mep, sheet_raw, column_mep, max_row)
+
 
 # obtaining of 'EF max loc' x;y;z coordinates
 EF_max_x_column = 0
@@ -154,12 +141,24 @@ for max_row_index in max_row:
 hot_spot_table = [stimulations, MAX_mep, max_MEP_x, max_MEP_y, max_MEP_z, max_row]
 
 # SAVING to a document
+"""
 new_document_wb = xlrd.open_workbook(new_document_path)
 r_sheet = new_document_wb.sheet_by_index(0)
 wb = copy(new_document_wb)
 wb_sheet = wb.get_sheet(0)
+"""
+# NEW Function creates a excel document and returns variable with link for the document
+def saving_to_doc(path_for_new_doc):
+    new_document_wb = xlrd.open_workbook(path_for_new_doc)
+    new_document_wb.sheet_by_index(0)
+    wb = copy(new_document_wb)
+    sheet2 = wb.get_sheet(0)
+    return sheet2
 
 # HEADER writing
+
+
+wb_sheet = saving_to_doc(new_document_path)
 wb_sheet.write(0, 0, 'Subject ' + str(subject_number) + ' Day ' + day + 'Ch ' + chanel)
 header = ['Stimulation', 'Max mep', 'EF loc x', 'EF loc y', 'EF loc z', 'max row ind']
 
