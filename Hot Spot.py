@@ -80,7 +80,7 @@ for rows in stimulations:  # 11, 22..
 
 # MAIN PART. STEP 2 - getting coordinates of max
 
-"""
+""" # some code from internet for getting row number 
 _ordA = ord('A')
 
 def find_val_in_workbook(wb_path, val, sheetid):
@@ -100,17 +100,6 @@ def find_val_in_workbook(wb_path, val, sheetid):
                 colchar += chr(_ordA + colidx % 26)
                 print('{} -> {}{}: {}'.format(sheet.name, colchar, rowidx+1, cell.value))
 """
-
-"""
-def rowidx_for_value(wb_path, val, sheetid, columnidx):
-    wb = xlrd.open_workbook(wb_path)
-    sheet = wb.sheet_by_index(sheetid)
-    for rowind, value in enumerate(sheet.col_values(columnidx)):
-        if value != val:
-            continue
-        else:
-            return rowind
-"""  # was trying to create a function for determining of row. Only one Problem with return value
 
 # finding row number of max
 max_row = []
