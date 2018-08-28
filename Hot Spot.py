@@ -1,5 +1,4 @@
 import xlrd, xlsxwriter, xlwt
-import sys
 from xlutils.copy import copy
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -11,7 +10,7 @@ new_document_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/for hot spot.xls
 
 # getting VARIABLES
 subject_number, subject_information = int(input('Type subject number: ')), input('code for day and ch like D1Ch2: ')
-needed_sheet_ws = int(input('Input sheet number 1 - ... of MEP data: ')) - 1
+needed_sheet_ws = int(input('Input sheet number 0 - ... of MEP data: '))
 
 if 1 <= subject_number <= 6:
     needed_sheet_stim = 0
@@ -52,7 +51,7 @@ for mep in range(first_row_mep, last_row_mep + 1):
         value2 = 0
     MEP.append(int(value2))
 
-key_for_mep =[]
+key_for_mep = []
 for k in range(len(MEP)):
     key_for_mep.append(k)
 
@@ -123,7 +122,7 @@ for val in MAX_mep:
 
 # obtaining of 'EF max loc' x;y;z coordinates
 
-EF_max_x_column = int(input('Type COLUMN number for EF AMX X coordinate 0-...: '))
+EF_max_x_column = int(input('Type COLUMN number for EF MAX X coordinate 0-...: '))
 EF_max_y_column, EF_max_z_column = EF_max_x_column + 1, EF_max_x_column + 2
 
 max_MEP_x = []
@@ -164,3 +163,4 @@ for list in hot_spot_table:
 
 wb.save(new_document_path)
 print('Good job! Let`s open "for hot spot" file through Numbers')
+
