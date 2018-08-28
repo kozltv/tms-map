@@ -9,7 +9,10 @@ stimulations_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/Final 18S .xlsx'
 new_document_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/for hot spot.xlsx'
 
 # getting VARIABLES
-subject_number, subject_information = int(input('Type subject number: ')), input('code for day and ch like D1Ch2: ')
+subject_number = int(input('Type subject number: '))
+day = str(input('What is day? 1 or 2: '))
+chanel = str(input('What is chanel? 1, 2, or 3: '))
+
 needed_sheet_ws = int(input('Input sheet number 0 - ... of MEP data: '))
 
 if 1 <= subject_number <= 6:
@@ -42,7 +45,17 @@ for stim in range(row_start_stim, row_start_stim + 25):
 MEP = []
 first_row_mep = 6  # int(input('Type FIRST row where MEP data starts 1-...: ')) - 1
 last_row_mep = stimulations[-1] + first_row_mep - 1  # int(input('Type LAST row where MEP data finish 1-...:')) - 1
-column_mep = int(input('Type COLUMN MEP data 0-... for ' + subject_information + ': '))
+
+column_mep = 0
+if day == '1':
+    if chanel == '1':
+        column_mep = 24
+    elif chanel == '2':
+        column_mep = 26
+    else:
+        column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel))
+else:
+    column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel))
 
 # extracting data and saving to MEP list
 for mep in range(first_row_mep, last_row_mep + 1):
@@ -121,8 +134,12 @@ for val in MAX_mep:
             max_row.append(rowind + 1)
 
 # obtaining of 'EF max loc' x;y;z coordinates
+EF_max_x_column = 0
+if day == '1':
+    EF_max_x_column = 19
+else:
+    EF_max_x_column = int(input('Type COLUMN number for EF MAX X coordinate 0-...: '))
 
-EF_max_x_column = int(input('Type COLUMN number for EF MAX X coordinate 0-...: '))
 EF_max_y_column, EF_max_z_column = EF_max_x_column + 1, EF_max_x_column + 2
 
 max_MEP_x = []
@@ -143,7 +160,7 @@ wb = copy(new_document_wb)
 wb_sheet = wb.get_sheet(0)
 
 # HEADER writing
-wb_sheet.write(0, 0, 'Subject ' + str(subject_number) + '' + subject_information)
+wb_sheet.write(0, 0, 'Subject ' + str(subject_number) + ' Day ' + day + 'Ch ' + chanel)
 header = ['Stimulation', 'Max mep', 'EF loc x', 'EF loc y', 'EF loc z', 'max row ind']
 
 column0 = -1
