@@ -53,9 +53,9 @@ if day == '1':
     elif chanel == '2':
         column_mep = 26
     else:
-        column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel))
+        column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel + ': '))
 else:
-    column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel))
+    column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel + ': '))
 
 # extracting data and saving to MEP list
 for mep in range(first_row_mep, last_row_mep + 1):
@@ -160,7 +160,7 @@ wb = copy(new_document_wb)
 wb_sheet = wb.get_sheet(0)
 
 # HEADER writing
-wb_sheet.write(0, 0, 'Subject ' + str(subject_number) + ' Day ' + day + 'Ch ' + chanel)
+wb_sheet.write(0, 0, 'Subject ' + str(subject_number) + ' Day ' + day + ' Ch ' + chanel)
 header = ['Stimulation', 'Max mep', 'EF loc x', 'EF loc y', 'EF loc z', 'max row ind']
 
 column0 = -1
