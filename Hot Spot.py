@@ -4,37 +4,25 @@ from decimal import Decimal, ROUND_HALF_UP
 
 # PATHS
 MEP_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/MEP new.xlsx'
-save_file_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/For MEP.xlsx'
-stimulations_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/Final 18S .xlsx'
 new_document_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/for hot spot.xlsx'
 
 # getting VARIABLES
 subject_number = int(input('Type subject number: '))
 day = str(input('What is day? 1 or 2: '))
 chanel = str(input('What is chanel? 1, 2, or 3: '))
+needed_sheet_ws = int(input('Input SHEET number 0 - ... of MEP data: '))
 
-needed_sheet_ws = int(input('Input sheet number 0 - ... of MEP data: '))
-
-if 1 <= subject_number <= 6:
-    needed_sheet_stim = 0
-elif 7 <= subject_number <= 12:
-    needed_sheet_stim = 1
-else:
-    needed_sheet_stim = 2
-
-row_start_stim = int(input('Input the first row number 1 - ... of stimulation data: ')) - 1
 print('Please WAIT')
-column_stim = 0  # CHECK whether the column is actual
 
 # open my files
 table_RAW = xlrd.open_workbook(MEP_path)
 sheet_raw = table_RAW.sheet_by_index(needed_sheet_ws)
 
-table_stim = xlrd.open_workbook(stimulations_path)
-sheet_stim = table_stim.sheet_by_index(needed_sheet_stim)
+sheet_stim = sheet_raw.sheet_by_index(22)
 
 # creation list of stimulation list
-
+row_start_stim = 1
+column_stim = subject_number
 stimulations = []
 for stim in range(row_start_stim, row_start_stim + 25):
     value1 = sheet_stim.row_values(stim)[column_stim]
