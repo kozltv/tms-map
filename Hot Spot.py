@@ -7,24 +7,26 @@ MEP_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/MEP new.xlsx'
 new_document_path = '/Users/kseniya/Desktop/MY/Lab/TMS map subj/for hot spot.xlsx'
 
 # getting VARIABLES
-subject_number = int(input('Type subject number: '))
-day = str(input('What is day? 1 or 2: '))
-chanel = str(input('What is chanel? 1, 2, or 3: '))
-needed_sheet_ws = int(input('Input SHEET number 0 - ... of MEP data: '))
+subject_number = int(input('Type SUBJECT number: '))
+day = int(input('What is DAY? 1 or 2: '))
+chanel = int(input('What is CHANEL? 1, 2, or 3: '))
+needed_sheet_ws = subject_number
 
 print('Please WAIT')
 
 # open my files
 table_RAW = xlrd.open_workbook(MEP_path)
+column_mep_sheet = table_RAW.sheet_by_index(0)
 sheet_raw = table_RAW.sheet_by_index(needed_sheet_ws)
 
-sheet_stim = sheet_raw.sheet_by_index(22)
+
+sheet_stim = table_RAW.sheet_by_index(0)
 
 # creation list of stimulation list
 row_start_stim = 1
 column_stim = subject_number
 stimulations = []
-for stim in range(row_start_stim, row_start_stim + 25):
+for stim in range(row_start_stim, 26):
     value1 = sheet_stim.row_values(stim)[column_stim]
     stimulations.append(int(value1))
 
@@ -34,16 +36,20 @@ MEP = []
 first_row_mep = 6  # int(input('Type FIRST row where MEP data starts 1-...: ')) - 1
 last_row_mep = stimulations[-1] + first_row_mep - 1  # int(input('Type LAST row where MEP data finish 1-...:')) - 1
 
-column_mep = 0
-if day == '1':
-    if chanel == '1':
-        column_mep = 24
-    elif chanel == '2':
-        column_mep = 26
-    else:
-        column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel + ': '))
+# obtaining of column number for MEP data
+
+
+col_ind_col = 0  # column number to receive column index
+col_int_row = subject_number + 29
+col_ind_EF_max_col = 0
+if day == 1:
+    col_ind_col = chanel + 2
+    col_ind_EF_max_col = 2
 else:
-    column_mep = int(input('Type COLUMN MEP data 0-... for ' + 'Day ' + day + 'Ch ' + chanel + ': '))
+    col_ind_col = chanel + 6
+    col_ind_EF_max_col = 6
+
+column_mep = int(column_mep_sheet.row_values(col_int_row)[col_ind_col])
 
 # extracting data and saving to MEP list
 for mep in range(first_row_mep, last_row_mep + 1):
@@ -70,12 +76,22 @@ if stimulations[-1] != len(MEP_dict):
     quit()
 
 MAX_mep = []
+max_row = []
 MEP_temporal = []
+row_temporal = []
+
 for rows in stimulations:  # 11, 22..
     for r in range(0, int(rows)):  # 0, 2... 10. Because key for the dict is 0-...
         MEP_temporal.append(MEP_dict[r])  # temporal list with needed interval
     mx = max(MEP_temporal)  # max in needed interval
     MAX_mep.append(mx)
+    for index, val in enumerate(MEP_temporal):  # getting index row of max
+        if val != mx:
+            continue
+        else:
+            row_temporal.append(index + 7)  # index is added to temporal because of cases when max appears in a list again
+    max_row.append(row_temporal[-1])
+    del row_temporal[:]
     del MEP_temporal[:]  # clean the list to rewrite it
 
 # MAIN PART. STEP 2 - getting coordinates of max
@@ -101,22 +117,9 @@ def find_val_in_workbook(wb_path, val, sheetid):
                 print('{} -> {}{}: {}'.format(sheet.name, colchar, rowidx+1, cell.value))
 """
 
-# finding row number of max
-max_row = []
-for val in MAX_mep:
-    for rowind, value in enumerate(sheet_raw.col_values(column_mep)):
-        if value != val:
-            continue
-        else:
-            max_row.append(rowind + 1)
-
 # obtaining of 'EF max loc' x;y;z coordinates
-EF_max_x_column = 0
-if day == '1':
-    EF_max_x_column = 19
-else:
-    EF_max_x_column = int(input('Type COLUMN number for EF MAX X coordinate 0-...: '))
 
+EF_max_x_column = int(column_mep_sheet.row_values(col_int_row)[col_ind_EF_max_col])  # getting the information from MEP document
 EF_max_y_column, EF_max_z_column = EF_max_x_column + 1, EF_max_x_column + 2
 
 max_MEP_x = []
@@ -137,7 +140,7 @@ wb = copy(new_document_wb)
 wb_sheet = wb.get_sheet(0)
 
 # HEADER writing
-wb_sheet.write(0, 0, 'Subject ' + str(subject_number) + ' Day ' + day + ' Ch ' + chanel)
+wb_sheet.write(0, 0, 'Subject ' + str(subject_number) + ' Day ' + str(day) + ' Ch ' + str(chanel))
 header = ['Stimulation', 'Max mep', 'EF loc x', 'EF loc y', 'EF loc z', 'max row ind']
 
 column0 = -1
@@ -157,4 +160,3 @@ for list in hot_spot_table:
 
 wb.save(new_document_path)
 print('Good job! Let`s open "for hot spot" file through Numbers')
-
